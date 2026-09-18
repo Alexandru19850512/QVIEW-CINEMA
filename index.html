@@ -113,6 +113,29 @@
             border-color: var(--accent-cyan);
         }
 
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: var(--accent-cyan);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            color: var(--text-primary);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
         .btn {
             width: 100%;
             background: linear-gradient(135deg, var(--accent-cyan), #00B0FF);
@@ -221,6 +244,11 @@
             <input type="url" id="poster-url" placeholder="https://example.com/poster.jpg (необязательно)">
         </div>
 
+        <div class="checkbox-group">
+            <input type="checkbox" id="is-permanent">
+            <label for="is-permanent">Постоянная комната (не удалять после выхода)</label>
+        </div>
+
         <button type="button" id="submit-btn" class="btn">🚀 Активировать и запустить на ТВ</button>
     </div>
 
@@ -260,6 +288,7 @@
         const streamType = document.getElementById('stream-type').value;
         const category = document.getElementById('room-category').value.trim();
         const posterUrl = document.getElementById('poster-url').value.trim();
+        const isPermanent = document.getElementById('is-permanent').checked;
 
         document.getElementById('error-box').style.display = 'none';
 
@@ -289,7 +318,8 @@
                     stream_type: streamType,
                     category: category || "Кино",
                     poster_url: posterUrl,
-                    backdrop_url: posterUrl, // Используем постер как бэкдроп, чтобы не плодить поля
+                    backdrop_url: posterUrl,
+                    is_permanent: isPermanent,
                     status: "active",
                     updated_at: new Date().toISOString()
                 })
