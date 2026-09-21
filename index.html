@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
+    <script src="https://openfpcdn.io/fingerprintjs/v4"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QVIEW WatchParty — Настройка комнаты</title>
@@ -39,7 +41,7 @@
             width: 100%;
             max-width: 500px;
             padding: 32px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
 
         .header {
@@ -91,7 +93,9 @@
             color: var(--text-secondary);
         }
 
-        input, select, textarea {
+        input,
+        select,
+        textarea {
             width: 100%;
             background-color: var(--bg-dark);
             border: 1px solid var(--border);
@@ -109,7 +113,9 @@
             font-family: inherit;
         }
 
-        input:focus, select:focus, textarea:focus {
+        input:focus,
+        select:focus,
+        textarea:focus {
             border-color: var(--accent-cyan);
         }
 
@@ -196,161 +202,172 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="card">
-    <!-- Форма настройки -->
-    <div id="setup-form">
-        <div class="header">
-            <div class="logo">QVIEW CINEMA</div>
-            <div class="title">Настройка WatchParty</div>
-            <div class="subtitle">Заполните карточку комнаты для вещания</div>
+    <div class="card">
+        <!-- Форма настройки -->
+        <div id="setup-form">
+            <div class="header">
+                <div class="logo">QVIEW CINEMA</div>
+                <div class="title">Настройка WatchParty</div>
+                <div class="subtitle">Заполните карточку комнаты для вещания</div>
+            </div>
+
+            <div id="pin-banner" class="pin-display">PIN сессии: <span id="pin-text">------</span></div>
+            <div id="error-box" class="error-message"></div>
+
+            <div class="form-group">
+                <label for="owner-name">Ваш никнейм (Организатор)</label>
+                <input type="text" id="owner-name" placeholder="Например: Alex777, MovieMaster" required>
+            </div>
+
+            <div class="form-group">
+                <label for="room-title">Название фильма / Стрима</label>
+                <input type="text" id="room-title" placeholder="Например: Big Buck Bunny, Прямой эфир"
+                    value="Новая комната просмотра">
+            </div>
+
+            <div class="form-group">
+                <label for="room-description">Описание контента</label>
+                <textarea id="room-description"
+                    placeholder="Краткое описание того, что будете смотреть вместе с друзьями..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="stream-url">Ссылка на видеопоток (.m3u8, .mp4)</label>
+                <input type="url" id="stream-url" placeholder="https://domain.com/playlist.m3u8" required>
+            </div>
+
+            <div class="form-group">
+                <label for="stream-type">Тип потока</label>
+                <select id="stream-type">
+                    <option value="HLS" selected>HLS Live (.m3u8)</option>
+                    <option value="VOD">Фильм / Файл (VOD / MP4)</option>
+                    <option value="AUDIO">Аудио / Радио поток</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="room-category">Категория</label>
+                <input type="text" id="room-category" placeholder="Кино, Спорт, IPTV, Сериалы" value="Кино">
+            </div>
+
+            <div class="form-group">
+                <label for="poster-url">Ссылка на обложку / постер</label>
+                <input type="url" id="poster-url" placeholder="https://example.com/poster.jpg (необязательно)">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="is-permanent">
+                <label for="is-permanent">Постоянная комната (не удалять после выхода)</label>
+            </div>
+
+            <button type="button" id="submit-btn" class="btn">🚀 Активировать и запустить на ТВ</button>
         </div>
 
-        <div id="pin-banner" class="pin-display">PIN сессии: <span id="pin-text">------</span></div>
-        <div id="error-box" class="error-message"></div>
-
-        <div class="form-group">
-            <label for="owner-name">Ваш никнейм (Организатор)</label>
-            <input type="text" id="owner-name" placeholder="Например: Alex777, MovieMaster" required>
+        <!-- Экран успеха -->
+        <div id="success-screen" class="success-message">
+            <div class="success-icon">✓</div>
+            <div class="success-text">Комната полностью готова!</div>
+            <div class="subtitle">Данные записаны в Supabase. Телевизор поймал сигнал и открывает лобби трансляции.
+                Вкладку можно закрыть.</div>
         </div>
-
-        <div class="form-group">
-            <label for="room-title">Название фильма / Стрима</label>
-            <input type="text" id="room-title" placeholder="Например: Big Buck Bunny, Прямой эфир" value="Новая комната просмотра">
-        </div>
-
-        <div class="form-group">
-            <label for="room-description">Описание контента</label>
-            <textarea id="room-description" placeholder="Краткое описание того, что будете смотреть вместе с друзьями..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="stream-url">Ссылка на видеопоток (.m3u8, .mp4)</label>
-            <input type="url" id="stream-url" placeholder="https://domain.com/playlist.m3u8" required>
-        </div>
-
-        <div class="form-group">
-            <label for="stream-type">Тип потока</label>
-            <select id="stream-type">
-                <option value="HLS" selected>HLS Live (.m3u8)</option>
-                <option value="VOD">Фильм / Файл (VOD / MP4)</option>
-                <option value="AUDIO">Аудио / Радио поток</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="room-category">Категория</label>
-            <input type="text" id="room-category" placeholder="Кино, Спорт, IPTV, Сериалы" value="Кино">
-        </div>
-
-        <div class="form-group">
-            <label for="poster-url">Ссылка на обложку / постер</label>
-            <input type="url" id="poster-url" placeholder="https://example.com/poster.jpg (необязательно)">
-        </div>
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="is-permanent">
-            <label for="is-permanent">Постоянная комната (не удалять после выхода)</label>
-        </div>
-
-        <button type="button" id="submit-btn" class="btn">🚀 Активировать и запустить на ТВ</button>
     </div>
 
-    <!-- Экран успеха -->
-    <div id="success-screen" class="success-message">
-        <div class="success-icon">✓</div>
-        <div class="success-text">Комната полностью готова!</div>
-        <div class="subtitle">Данные записаны в Supabase. Телевизор поймал сигнал и открывает лобби трансляции. Вкладку можно закрыть.</div>
-    </div>
-</div>
+    <script>
+        const SUPABASE_URL = "https://dmflfzeaprsaxjvmnzdz.supabase.co";
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZmxmemVhcHJzYXhqdm1uemR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjM5MDUsImV4cCI6MjEwNTI5OTkwNX0.v6bZEvimGd4zIfFTITHOvniIYqzgTpZcNy5ioElJd8M";
 
-<script>
-    const SUPABASE_URL = "https://dmflfzeaprsaxjvmnzdz.supabase.co";
-    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtZmxmemVhcHJzYXhqdm1uemR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk3MjM5MDUsImV4cCI6MjEwNTI5OTkwNX0.v6bZEvimGd4zIfFTITHOvniIYqzgTpZcNy5ioElJd8M";
+        // UUID телефона на основе железа устройства (FingerprintJS)
+        let deviceUUID = null;
+        FingerprintJS.load().then(fp => fp.get()).then(result => {
+            deviceUUID = result.visitorId;
+        });
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const pin = urlParams.get('pin');
+        const urlParams = new URLSearchParams(window.location.search);
+        const pin = urlParams.get('pin');
 
-    if (pin) {
-        document.getElementById('pin-banner').style.display = 'block';
-        document.getElementById('pin-text').innerText = pin;
-    } else {
-        showError("Ошибка: Не найден PIN сессии в адресе. Отсканируйте код с ТВ заново.");
-        document.getElementById('submit-btn').disabled = true;
-    }
-
-    function showError(msg) {
-        const errBox = document.getElementById('error-box');
-        errBox.innerText = msg;
-        errBox.style.display = 'block';
-    }
-
-    document.getElementById('submit-btn').addEventListener('click', async () => {
-        const ownerName = document.getElementById('owner-name').value.trim();
-        const title = document.getElementById('room-title').value.trim();
-        const description = document.getElementById('room-description').value.trim();
-        const streamUrl = document.getElementById('stream-url').value.trim();
-        const streamType = document.getElementById('stream-type').value;
-        const category = document.getElementById('room-category').value.trim();
-        const posterUrl = document.getElementById('poster-url').value.trim();
-        const isPermanent = document.getElementById('is-permanent').checked;
-
-        document.getElementById('error-box').style.display = 'none';
-
-        if (!pin) return;
-        if (!ownerName) {
-            showError("Пожалуйста, укажите ваш никнейм.");
-            return;
-        }
-        if (!streamUrl) {
-            showError("Пожалуйста, укажите ссылку на медиапоток.");
-            return;
+        if (pin) {
+            document.getElementById('pin-banner').style.display = 'block';
+            document.getElementById('pin-text').innerText = pin;
+        } else {
+            showError("Ошибка: Не найден PIN сессии в адресе. Отсканируйте код с ТВ заново.");
+            document.getElementById('submit-btn').disabled = true;
         }
 
-        const btn = document.getElementById('submit-btn');
-        btn.disabled = true;
-        btn.innerText = "Отправка в Supabase...";
+        function showError(msg) {
+            const errBox = document.getElementById('error-box');
+            errBox.innerText = msg;
+            errBox.style.display = 'block';
+        }
 
-        try {
-            const response = await fetch(`${SUPABASE_URL}/rest/v1/rooms?pin=eq.${pin}`, {
-                method: 'PATCH',
-                headers: {
-                    'apikey': SUPABASE_KEY,
-                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
-                },
-                body: JSON.stringify({
-                    owner_name: ownerName,
-                    title: title || `Комната #${pin}`,
-                    description: description,
-                    stream_url: streamUrl,
-                    stream_type: streamType,
-                    category: category || "Кино",
-                    poster_url: posterUrl,
-                    backdrop_url: posterUrl,
-                    is_permanent: isPermanent,
-                    status: "active",
-                    updated_at: new Date().toISOString()
-                })
-            });
+        document.getElementById('submit-btn').addEventListener('click', async () => {
+            const ownerName = document.getElementById('owner-name').value.trim();
+            const title = document.getElementById('room-title').value.trim();
+            const description = document.getElementById('room-description').value.trim();
+            const streamUrl = document.getElementById('stream-url').value.trim();
+            const streamType = document.getElementById('stream-type').value;
+            const category = document.getElementById('room-category').value.trim();
+            const posterUrl = document.getElementById('poster-url').value.trim();
+            const isPermanent = document.getElementById('is-permanent').checked;
 
-            if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.message || "Ошибка базы данных.");
+            document.getElementById('error-box').style.display = 'none';
+
+            if (!pin) return;
+            if (!ownerName) {
+                showError("Пожалуйста, укажите ваш никнейм.");
+                return;
+            }
+            if (!streamUrl) {
+                showError("Пожалуйста, укажите ссылку на медиапоток.");
+                return;
             }
 
-            document.getElementById('setup-form').style.display = 'none';
-            document.getElementById('success-screen').style.display = 'block';
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Отправка в Supabase...";
 
-        } catch (error) {
-            console.error(error);
-            showError(`Ошибка активации: ${error.message}`);
-            btn.disabled = false;
-            btn.innerText = "🚀 Активировать и запустить на ТВ";
-        }
-    });
-</script>
+            try {
+                const response = await fetch(`${SUPABASE_URL}/rest/v1/rooms?pin=eq.${pin}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify({
+                        owner_name: ownerName,
+                        title: title || `Комната #${pin}`,
+                        description: description,
+                        stream_url: streamUrl,
+                        stream_type: streamType,
+                        category: category || "Кино",
+                        poster_url: posterUrl,
+                        backdrop_url: posterUrl,
+                        is_permanent: isPermanent,
+                        status: "active",
+                        updated_at: new Date().toISOString()
+                    })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.message || "Ошибка базы данных.");
+                }
+
+                document.getElementById('setup-form').style.display = 'none';
+                document.getElementById('success-screen').style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                showError(`Ошибка активации: ${error.message}`);
+                btn.disabled = false;
+                btn.innerText = "🚀 Активировать и запустить на ТВ";
+            }
+        });
+    </script>
 </body>
+
 </html>
