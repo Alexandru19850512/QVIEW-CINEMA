@@ -211,6 +211,11 @@
         <div id="error-box" class="error-message"></div>
 
         <div class="form-group">
+            <label for="owner-name">Ваш никнейм (Организатор)</label>
+            <input type="text" id="owner-name" placeholder="Например: Alex777, MovieMaster" required>
+        </div>
+
+        <div class="form-group">
             <label for="room-title">Название фильма / Стрима</label>
             <input type="text" id="room-title" placeholder="Например: Big Buck Bunny, Прямой эфир" value="Новая комната просмотра">
         </div>
@@ -282,6 +287,7 @@
     }
 
     document.getElementById('submit-btn').addEventListener('click', async () => {
+        const ownerName = document.getElementById('owner-name').value.trim();
         const title = document.getElementById('room-title').value.trim();
         const description = document.getElementById('room-description').value.trim();
         const streamUrl = document.getElementById('stream-url').value.trim();
@@ -293,6 +299,10 @@
         document.getElementById('error-box').style.display = 'none';
 
         if (!pin) return;
+        if (!ownerName) {
+            showError("Пожалуйста, укажите ваш никнейм.");
+            return;
+        }
         if (!streamUrl) {
             showError("Пожалуйста, укажите ссылку на медиапоток.");
             return;
@@ -312,6 +322,7 @@
                     'Prefer': 'return=representation'
                 },
                 body: JSON.stringify({
+                    owner_name: ownerName,
                     title: title || `Комната #${pin}`,
                     description: description,
                     stream_url: streamUrl,
